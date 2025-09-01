@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Şifre Güçlülüğü Testi</title>
+
+    <style>
+        :root {
+            --bg: #0b0f17;
+            --panel: #121826;
+            --muted: #9aa4b2;
+            --fg: #e5e7eb;
+            --ok: #22c55e;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            --brand: #60a5fa;
+            --chip: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif
+        }
+
+        .wrap {
+            max-width: 840px;
+            margin: 40px auto;
+            padding: 24px
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 16px;
+            padding: 24px 24px 18px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+        }
+
+        h1 {
+            margin: 0 0 18px;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: .2px
+        }
+
+        p.lead {
+            margin: 0 0 22px;
+            color: var(--muted)
+        }
+
+        .field {
+            position: relative;
+            margin: 10px 0 16px
+        }
+
+        .field label {
+            display: block;
+            margin: 0 0 8px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .field input[type=password],
+        .field input[type=text] {
+            width: 100%;
+            padding: 14px 44px 14px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: var(--panel);
+            color: var(--fg);
+            font-size: 16px;
+            outline: none;
+            transition: border .2s, box-shadow .2s;
+        }
+
+        .field input:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, .25)
+        }
+
+        .toggle {
+            position: absolute;
+            right: 8px;
+            top: 34px;
+            appearance: none;
+            background: transparent;
+            border: 0;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px
+        }
+
+        .toggle:hover {
+            background: rgba(255, 255, 255, .06);
+            color: var(--fg)
+        }
+
+        .meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 8px 0 6px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .verdict {
+            font-weight: 700;
+            letter-spacing: .2px
+        }
+
+        .entropy {
+            opacity: .9
+        }
+
+        .meter {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0 4px
+        }
+
+        .meter span {
+            flex: 1;
+            height: 10px;
+            border-radius: 999px;
+            background: #1f2735;
+            border: 1px solid rgba(255, 255, 255, .08)
+        }
+
+        .meter span.on {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .05))
+        }
+
+        /* renk şeması (container data-level’e göre) */
+        .meter[data-level="very-weak"] span.on {
+            background: #ef4444
+        }
+
+        .meter[data-level="weak"] span.on {
+            background: #f59e0b
+        }
+
+        .meter[data-level="medium"] span.on {
+            background: #fbbf24
+        }
+
+        .meter[data-level="strong"] span.on {
+            background: #22c55e
+        }
+
+        .meter[data-level="very-strong"] span.on {
+            background: #10b981
+        }
+
+        .checks {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 14px 0 4px
+        }
+
+        .chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--chip);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .chip.ok {
+            color: #c7f9cc;
+            border-color: rgba(34, 197, 94, .35);
+            background: rgba(34, 197, 94, .08)
+        }
+
+        .chip svg {
+            width: 16px;
+            height: 16px;
+            opacity: .9
+        }
+
+        .tips {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .tips ul {
+            margin: 8px 0 0 18px
+        }
+
+        .tips li {
+            margin: 4px 0
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, .08)
+        }
+
+        .footer {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 12px
+        }
+
+        @media (max-width:560px) {
+            .checks {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="card" role="region" aria-labelledby="title">
+            <h1 id="title">Şifre Güçlülüğü Testi</h1>
+            <p class="lead">Aşağıya şifrenizi yazın; anlık olarak <strong>güç</strong>, <strong>entropi</strong> ve
+                <strong>karakter çeşitliliği</strong> analiz edilir. (Veriler tarayıcınızda işlenir.)
+            </p>
+
+            <div class="field">
+                <label for="password">Şifre</label>
+                <input id="password" type="password" inputmode="text" autocomplete="new-password" spellcheck="false"
+                    aria-describedby="help" />
+                <button id="toggle" class="toggle" type="button" aria-label="Şifreyi göster/gizle">👁️</button>
+            </div>
+
+            <div class="meta">
+                <div class="row">
+                    <span class="badge" id="lengthBadge">Uzunluk: 0</span>
+                    <span class="badge" id="uniqueBadge">Benzersiz: 0</span>
+                </div>
+                <div class="row">
+                    <span class="verdict" id="verdict">—</span>
+                    <span class="entropy" id="entropy" aria-live="polite"></span>
+                </div>
+            </div>
+
+            <div class="meter" id="meter" data-level="very-weak" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="checks" id="checks">
+                <div class="chip" data-check="length">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Minimum 12 karakter
+                </div>
+                <div class="chip" data-check="unique">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    En az 5 <em>benzersiz</em> karakter
+                </div>
+                <div class="chip" data-check="lower">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Küçük harf (a–z)
+                </div>
+                <div class="chip" data-check="upper">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Büyük harf (A–Z)
+                </div>
+                <div class="chip" data-check="digit">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Rakam (0–9)
+                </div>
+                <div class="chip" data-check="symbol">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7L9 18l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Sembol (!@#…)
+                </div>
+            </div>
+
+            <div class="tips">
+                <div class="muted">Öneriler:</div>
+                <ul id="tipsList"></ul>
+            </div>
+
+            <div class="footer">
+                <span>© Arda Altun Open-Source on Git</span>
+                <a href="https://github.com/JustL0/passwd-checker" target="_blank" rel="noopener"
+                    class="muted">Kaynak kodu</a>     
+            </div>
+        </div>
+    </div>
+
+    <script src="static/main.js" defer></script>
+</body>
+
+</html>
